@@ -32,6 +32,6 @@ def main():
 
     root.mainloop()
     db.connect.close()
-    
+
 if __name__ == "__main__":
     main()  
