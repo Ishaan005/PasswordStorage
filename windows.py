@@ -38,18 +38,30 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
+    
     def add_password(self):
         self.db.add_password(self.name_entry.text(), self.password_entry.text())
 
+    #View Password#
     def view_passwords(self):
-        # Implement this function
-        self.view = PasswordEntry(self.db.query_database())
+        """self.view = PasswordEntry(self.db)
+        self.view.show()"""
+
+        self.password_entry_window = PasswordEntry(self.show_view_window)
+        self.password_entry_window.show()
+
+    def show_view_window(self):
+        self.view = ViewWindow(self.db)
         self.view.show()
+    #View Password - End#
 
 class ViewWindow(QWidget):
-    def __init__(self, passwords):
+    def __init__(self, db):
         super().__init__()
-        self.passwords = passwords
+
+        self.db = db
+        self.passwords = self.db.query_database()
+
         self.setWindowTitle("Your Passwords")
 
         main_layout = QVBoxLayout()
@@ -59,9 +71,11 @@ class ViewWindow(QWidget):
             layout.addWidget(QLabel(name))
             layout.addWidget(QLabel(password))
 
+            self.edit_window = EditWindow(self.db, name, self)
             self.edit_button = QPushButton("Edit")
-            #self.edit_button.clicked.connect()
+            self.edit_button.clicked.connect(self.edit_window.show)
             layout.addWidget(self.edit_button)
+            self.edit_window.close()
 
             delete_button = QPushButton("Delete")
             layout.addWidget(delete_button)
@@ -73,16 +87,48 @@ class ViewWindow(QWidget):
 
         self.setLayout(main_layout)
 
-class PasswordEntry(QWidget):
-    def __init__(self, passwords):
+    def refresh(self):
+        self.passwords = self.db.query_database()
+        self.close()
+        self.show()
+
+class EditWindow(QWidget):
+    def __init__(self, db, name, view_window):
         super().__init__()
 
-        self.passwords = passwords
+        self.db = db
+        self.name = name
+        self.view_window = view_window
+
+        self.setWindowTitle("Edit Password")
+
+        self.layout = QVBoxLayout()
+
+        self.prompt = QLabel("Enter your new password: ")
+        self.new_password_entry = QLineEdit()
+        self.enter_button = QPushButton("Enter")
+
+        self.enter_button.clicked.connect(self.edit_password)
+
+        self.layout.addWidget(self.prompt)
+        self.layout.addWidget(self.new_password_entry)
+        self.layout.addWidget(self.enter_button)
+
+        self.setLayout(self.layout)
+
+    def edit_password(self):
+        self.db.edit_password(self.name, self.new_password_entry.text())
+        self.view_window.refresh()
+
+class PasswordEntry(QWidget):
+    def __init__(self, on_correct_password):
+        super().__init__()
 
         self.setWindowTitle("Password Entry")
 
         self.layout = QVBoxLayout()
 
+        self.on_correct_password = on_correct_password
 
         self.prompt = QLabel("Enter your password: ")
         self.password_entry = QLineEdit()  
@@ -101,8 +147,7 @@ class PasswordEntry(QWidget):
         password = "1234"
         if self.password_entry.text() == password:
             self.prompt.setText("Correct password")
-            self.view = ViewWindow(passwords=self.passwords)
-            self.view.show()
+            self.on_correct_password()
             self.close()
             return True
         else:
