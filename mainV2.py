@@ -1,36 +1,20 @@
-from tkinter import *
-import sqlite3 as sql
-from numba import njit
-from database_manager import Database
-
+from database import Database
+from windows import MainWindow
+from PyQt6.QtWidgets import QApplication
 
 def main():
     db = Database()
     db.create_database()
 
-    #Main window
-    root = Tk()
-    root.title("Password Manager")
+    # Create a Qt application
+    app = QApplication([])
 
-    #Labels
-    Label(root, text = "Name: ").grid(row = 0, column = 0, sticky = W)
-    Label(root, text = "Password: ").grid(row = 1, column = 0, sticky = W)  
+    # Create and show the main window
+    window = MainWindow(db)
+    window.show()
 
-    #Entries
-    id_entry = Entry(root)
-    id_entry.grid(row = 0, column = 1)
-    password_entry = Entry(root)
-    password_entry.grid(row = 1, column = 1)
-
-    #Buttons
-    add_button = Button(root, text = "Add Password" , command = lambda: db.add_password(id_entry.get(), password_entry.get()))
-    add_button.grid(row = 2, column = 0, columnspan = 2)
-    view_button = Button(root, text = "View Passwords", command = db.query_database)
-    view_button.grid(row = 3, column = 0, columnspan = 2) 
-    delete_button = Button(root, text = "Delete Passwords", command = db.clear_database)
-    delete_button.grid(row = 4, column = 0, columnspan = 2) 
-
-    root.mainloop()
+    # Run the application
+    app.exec()
     db.connect.close()
 
 if __name__ == "__main__":

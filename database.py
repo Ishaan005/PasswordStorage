@@ -15,6 +15,12 @@ class Database:
                             {"name": name, "password": password})
         self.connect.commit()
 
+    def edit_password(self, name, password):
+        self.cursor.execute("UPDATE passwords SET password = :password WHERE name = :name",
+                            {"name": name, "password": password})
+        self.connect.commit()
+
+
     def query_database(self):
         # Execute a SELECT query
         self.cursor.execute("SELECT * FROM passwords")
@@ -22,8 +28,10 @@ class Database:
         # Fetch all the rows from the query
         rows = self.cursor.fetchall()
 
+        password_list = []
         for row in rows:
-            print(row)
+            password_list.append(row)
+        return password_list
 
     def clear_database(self):
         self.connect = sql.connect("passwords.db")
@@ -32,3 +40,5 @@ class Database:
         self.cursor.execute("DELETE FROM passwords")
 
         self.connect.commit()
+
+        
