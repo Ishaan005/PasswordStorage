@@ -20,6 +20,11 @@ class Database:
                             {"name": name, "password": password})
         self.connect.commit()
 
+    def delete_password(self, name, password):
+        self.cursor.execute("DELETE FROM passwords WHERE name = :name AND password = :password",
+                            {"name": name, "password": password})
+        self.connect.commit()
+
 
     def query_database(self):
         # Execute a SELECT query

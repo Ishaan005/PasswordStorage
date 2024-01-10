@@ -64,7 +64,16 @@ class ViewWindow(QWidget):
 
         self.setWindowTitle("Your Passwords")
 
-        main_layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        self.populate_passwords()
+
+    def populate_passwords(self):
+        for i in reversed(range(self.main_layout.count())):
+            self.widgetToRemove = self.main_layout.itemAt(i).widget()
+            self.main_layout.removeWidget(self.widgetToRemove)
+            self.widgetToRemove.setParent(None)
 
         for name, password in self.passwords:
             layout = QHBoxLayout()
@@ -77,20 +86,23 @@ class ViewWindow(QWidget):
             layout.addWidget(self.edit_button)
             self.edit_window.close()
 
-            delete_button = QPushButton("Delete")
-            layout.addWidget(delete_button)
+            self.delete_button = QPushButton("Delete")
+            self.delete_button.clicked.connect(lambda: self.delete_password(name, password))
+            layout.addWidget(self.delete_button)
 
             group_box = QGroupBox()
             group_box.setLayout(layout)
 
-            main_layout.addWidget(group_box)
-
-        self.setLayout(main_layout)
+            self.main_layout.addWidget(group_box)
 
     def refresh(self):
         self.passwords = self.db.query_database()
-        self.close()
-        self.show()
+        self.populate_passwords()
+
+    def delete_password(self, name, password):
+        self.db.delete_password(name, password)
+        self.refresh()
+        
 
 class EditWindow(QWidget):
     def __init__(self, db, name, view_window):
