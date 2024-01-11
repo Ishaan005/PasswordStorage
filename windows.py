@@ -38,7 +38,6 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
-    
     def add_password(self):
         self.db.add_password(self.name_entry.text(), self.password_entry.text())
 
