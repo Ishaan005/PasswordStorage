@@ -1,11 +1,32 @@
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
 from PyQt6.QtWidgets import *
+from PyQt6.QtCore import Qt
+
+class CustomTitleBar(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+
+        title = QLabel("My Custom Title Bar")
+        layout.addWidget(title)
+
+        closeButton = QPushButton("X")
+        closeButton.clicked.connect(self.closeWindow)
+        layout.addWidget(closeButton)
+
+    def closeWindow(self):
+        self.window().close()
 
 class MainWindow(QMainWindow):
     def __init__(self, db):
         super().__init__()
 
         self.setWindowTitle("Password Manager")
+
+        """self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        self.setMenuWidget(CustomTitleBar()) """
 
         self.db = db
 
@@ -145,6 +166,7 @@ class PasswordEntry(QWidget):
         self.password_entry = QLineEdit()  
         self.enter_button = QPushButton("Enter")
 
+        self.password_entry.returnPressed.connect(self.enter_button.click)
         self.enter_button.clicked.connect(self.give_access)
 
         self.layout.addWidget(self.prompt)
